@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>性格职业适配测试｜趣味测试</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#8b5cf6',
+          },
+          fontFamily: {
+            sans: ['system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .card-shadow {
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.12);
+      }
+      .btn-hover {
+        @apply transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-700 min-h-screen">
+  <div class="max-w-xl mx-auto px-4 py-8">
+
+    <!-- 开始页 -->
+    <div id="page-start" class="block">
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="text-center">
+          <div class="text-primary text-5xl mb-4">
+            <i class="fa fa-lightbulb-o"></i>
+          </div>
+          <h1 class="text-[clamp(1.5rem,5vw,2rem)] font-bold text-slate-800 mb-3">性格职业适配测试</h1>
+          <p class="text-slate-500 mb-6">通过你的选择，找到适配你的赛道、工作方向与适合你的城市氛围</p>
+          <div class="bg-amber-50 text-amber-700 text-sm p-3 rounded-xl mb-6">
+            ⚠️ 本测试为趣味娱乐向，仅供参考，不构成职业、命理指导，不能替代专业职业规划与心理咨询
+          </div>
+          <button onclick="startTest()" class="bg-primary text-white w-full py-3 rounded-xl font-medium btn-hover">
+            开始测试（共24题）
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 答题页 -->
+    <div id="page-question" class="hidden">
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-sm text-slate-400">题目 <span id="current-q">1</span>/24</span>
+          <div class="h-2 bg-slate-100 rounded-full flex-1 mx-3 overflow-hidden">
+            <div id="progress-bar" class="h-full bg-primary w-[4.16%] transition-all duration-300"></div>
+          </div>
+        </div>
+        <h2 id="q-title" class="text-lg font-semibold mb-5"></h2>
+        <div id="option-box" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="page-result" class="hidden">
+      <div class="bg-white rounded-2xl p-6 card-shadow">
+        <div class="text-center mb-4">
+          <div class="text-primary text-4xl mb-2">
+            <i id="res-icon" class="fa fa-star"></i>
+          </div>
+          <h2 id="res-name" class="text-xl font-bold text-slate-800"></h2>
+        </div>
+
+        <div class="space-y-4 mt-6 text-sm">
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">🧩 性格画像</h3>
+            <p id="res-desc" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">✅ 你的核心优势</h3>
+            <p id="res-good" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">⚠️ 需要留意的短板</h3>
+            <p id="res-bad" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">💼 适配行业 & 岗位</h3>
+            <p id="res-job" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">🚫 不太适合的赛道</h3>
+            <p id="res-notjob" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">🌆 适合你的城市氛围</h3>
+            <p id="res-city" class="text-slate-600"></p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-slate-800 mb-1">📌 成长建议</h3>
+            <p id="res-suggest" class="text-slate-600"></p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 text-amber-700 text-xs p-3 rounded-xl mt-6">
+          ⚠️ 趣味测试，仅作娱乐参考，不代表真实职业能力评估，人生选择请结合自身现实条件理性决定
+        </div>
+
+        <button onclick="restart()" class="bg-primary text-white w-full py-3 rounded-xl font-medium btn-hover mt-6">
+          重新测试</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// 24道题目
+const questions = [
+  {q:"休息的时候，你更偏向？",o:[
+    {t:"和朋友出门交流聚会",k:"E"},
+    {t:"独处、看书、刷内容、安静放空",k:"I"},
+    {t:"少量熟人小聚，不喜欢喧闹",k:"M"}
+  ]},
+  {q:"接到一个新项目，你首先？",o:[
+    {t:"先看流程，一步步落地执行",k:"S"},
+    {t:"先构思创意、可能性、长远规划",k:"N"},
+    {t:"先找人沟通想法，一起商量",k:"C"}
+  ]},
+  {q:"发生分歧，你习惯？",o:[
+    {t:"讲道理，优先客观对错",k:"T"},
+    {t:"照顾对方情绪，温和协调",k:"F"},
+    {t:"尽量回避冲突，不想吵架",k:"A"}
+  ]},
+  {q:"你更喜欢哪种工作节奏？",o:[
+    {t:"固定时间表，稳定有序",k:"J"},
+    {t:"弹性自由，随灵感安排",k:"P"},
+    {t:"有目标但不喜欢死板打卡",k:"L"}
+  ]},
+  {q:"做选择时，你更相信？",o:[
+    {t:"过往经验、现实数据",k:"S"},
+    {t:"直觉、灵感、预感",k:"N"},
+    {t:"别人靠谱的建议",k:"C"}
+  ]},
+  {q:"成就感更多来自？",o:[
+    {t:"搞定难题、技术、逻辑成果",k:"T"},
+    {t:"帮助别人、获得他人认可",k:"F"},
+    {t:"自由不受约束，可以自主安排",k:"P"}
+  ]},
+  {q:"面对突发变动，你会？",o:[
+    {t:"有点烦躁，希望计划不变",k:"J"},
+    {t:"快速适应，随机应变",k:"P"},
+    {t:"先观望，等别人定方向",k:"A"}
+  ]},
+  {q:"学习新东西，偏爱？",o:[
+    {t:"实操、案例、上手就做",k:"S"},
+    {t:"理论、体系、底层逻辑",k:"N"},
+    {t:"跟着教程一步步模仿",k:"M"}
+  ]},
+  {q:"长期枯燥重复工作，你？",o:[
+    {t:"可以坚持，细心稳定完成",k:"J"},
+    {t:"很快厌倦，需要新鲜感",k:"N"},
+    {t:"看报酬，划算就能接受",k:"T"}
+  ]},
+  {q:"长时间社交之后，你的状态？",o:[
+    {t:"越社交越兴奋，还想继续",k:"E"},
+    {t:"社交之后很累，需要独处回血",k:"I"},
+    {t:"看人，舒服的社交不累，无效社交很累",k:"M"}
+  ]},
+  {q:"你挑选工作优先看重？",o:[
+    {t:"稳定福利、安全感",k:"J"},
+    {t:"成长空间、可能性",k:"N"},
+    {t:"收入回报、价值对等",k:"T"}
+  ]},
+  {q:"团队里你更适合扮演？",o:[
+    {t:"主导推进、安排任务",k:"E"},
+    {t:"默默做好自己分内的事",k:"I"},
+    {t:"协调大家，缓和气氛",k:"F"}
+  ]},
+  {q:"做重大决定，你倾向？",o:[
+    {t:"干脆快速，不纠结",k:"J"},
+    {t:"反复权衡，多想几种结果",k:"P"},
+    {t:"问问信任的人再决定",k:"C"}
+  ]},
+  {q:"理想的工作环境是？",o:[
+    {t:"规则清晰，分工明确",k:"S"},
+    {t:"包容开放，鼓励创新试错",k:"N"},
+    {t:"氛围轻松，人际关系简单",k:"F"}
+  ]},
+  {q:"遇到失败，你第一反应？",o:[
+    {t:"复盘哪里出错，理性改进",k:"T"},
+    {t:"情绪内耗，需要时间平复",k:"F"},
+    {t:"换一条路，不钻牛角尖",k:"P"}
+  ]},
+  {q:"别人评价你，更贴近哪一句？",o:[
+    {t:"务实靠谱，落地能力强",k:"S"},
+    {t:"脑洞大，想法很多",k:"N"},
+    {t:"善于共情，很会照顾人",k:"F"}
+  ]},
+  {q:"如果可以，你更愿意？",o:[
+    {t:"独立完成任务，少被打扰",k:"I"},
+    {t:"和伙伴一起协作完成",k:"E"},
+    {t:"看任务类型，灵活切换",k:"M"}
+  ]},
+  {q:"对待截止日期，你通常？",o:[
+    {t:"提前做完，心里踏实",k:"J"},
+    {t:"临近截止爆发灵感",k:"P"},
+    {t:"尽量不拖延，但偶尔会赶工",k:"L"}
+  ]},
+  {q:"你更容易被哪种内容吸引？",o:[
+    {t:"干货教程、行业数据",k:"T"},
+    {t:"故事、美学、情绪向内容",k:"F"},
+    {t:"新奇、小众、有探索感的事物",k:"N"}
+  ]},
+  {q:"被批评的时候，你第一感受？",o:[
+    {t:"先看逻辑，看是不是事实",k:"T"},
+    {t:"心里难受，在意对方态度",k:"F"},
+    {t:"先躲开，不想正面冲突",k:"A"}
+  ]},
+  {q:"规划未来，你更喜欢？",o:[
+    {t:"有清晰目标和路线图",k:"J"},
+    {t:"边走边看，保留选择权",k:"P"},
+    {t:"短期做好，长远顺其自然",k:"L"}
+  ]},
+  {q:"处理信息，你习惯？",o:[
+    {t:"抓细节，核对准确",k:"S"},
+    {t:"抓整体框架、趋势",k:"N"},
+    {t:"优先看和人相关的部分",k:"F"}
+  ]},
+  {q:"你怎么看待竞争？",o:[
+    {t:"良性竞争可以激发自己",k:"T"},
+    {t:"不太喜欢内卷竞争",k:"F"},
+    {t:"有机会就尝试，不强求输赢",k:"P"}
+  ]},
+  {q:"在压力很大的时候，你会？",o:[
+    {t:"列计划，一步步解决",k:"J"},
+    {t:"先放空，换环境调整状态",k:"P"},
+    {t:"找人倾诉，获得安慰",k:"F"}
+  ]}
+]
+
+// 6种人格，内容全部扩充
+const resultMap = {
+  creator:{
+    icon:"fa-paint-brush",
+    name:"创作者型",
+    desc:"想象力丰富，感知细腻，审美敏锐，喜欢探索新表达，讨厌死板、重复、条条框框的束缚，内心世界丰富，容易被灵感驱动，共情力不错，擅长把想法转化成看得见的内容。",
+    good:"灵感充沛，擅长发散思考，感知力强，审美在线，愿意尝试新鲜事物，擅长用文字、画面、故事传递情绪。",
+    bad:"情绪容易受外界影响，耐心薄弱，长期重复工作会快速倦怠；容易理想化，有时忽略现实落地成本，拖延、灵感断档时容易自我怀疑。",
+    job:"短视频编导、内容文案、插画设计、品牌策划、新媒体运营、自媒体、剧本、视觉设计、文创、摄影、艺术策划",
+    notjob:"流水线式内勤、高频机械录入、强管控、流程固化、几乎没有创意空间的岗位。",
+    city:"适合创意包容度高、年轻氛围强、文艺活动多的城市：杭州、上海、广州、成都；偏好多元松弛的氛围，不适合高压内卷、节奏压抑的环境。",
+    suggest:"把灵感及时记录下来，建立稳定输出节奏；学会拆分大项目，不要等完美灵感才动手；适当学习基础商业逻辑，让创意更容易变现。"
+  },
+  tech:{
+    icon:"fa-code",
+    name:"技术深耕型",
+    desc:"理性冷静，偏爱逻辑和底层原理，喜欢拆解问题，耐心强，享受攻克难题的成就感；社交偏向精简，不喜欢无意义人情应酬，做事讲究证据、规则和效率。",
+    good:"逻辑清晰，学习钻研能力强，擅长独立排查问题，稳定性强，不容易被情绪干扰判断，适合长期深耕一个领域积累壁垒。",
+    bad:"容易忽略他人情绪，沟通偏直白；不擅长软性人情协调；对模糊、没有标准的工作会感到烦躁，容易陷入细节钻牛角尖。",
+    job:"软件开发、数据分析、测试、运维、科研、财务审计、风控、工程技术、设备研发、技术支持",
+    notjob:"高频应酬、大量人情维护、强情绪服务类岗位；需要持续即兴共情安抚他人的工作。",
+    city:"产业配套完善、技术资源集中的城市：深圳、上海、苏州、南京；看重行业集群、技术交流氛围，安静有序的环境更舒服。",
+    suggest:"刻意练习通俗表达能力，学会把专业内容讲明白；不要一直埋头单点钻研，多了解行业上下游，避免视野局限。"
+  },
+  business:{
+    icon:"fa-handshake-o",
+    name:"商务社交型",
+    desc:"擅长读懂人心，外向主动，目标感强，抗压强，乐于链接不同的人，能快速适应陌生场景；懂得换位思考，善于谈判、维护关系，愿意为目标持续行动。",
+    good:"沟通表达流畅，人脉拓展能力强，应变快，不怕拒绝，擅长挖掘需求，擅长推动事情落地，适合对外链接类工作。",
+    bad:"容易急躁，耐心不足；有时为了目标忽略细节；容易把工作情绪带回生活，无效社交过多会消耗自己。",
+    job:"商务、渠道销售、市场推广、公关、招商、客户运营、品牌BD、直播商务、项目对接",
+    notjob:"长期独自闭门、几乎没有对外沟通机会、纯后台静态重复的岗位。",
+    city:"商贸活跃、机会流动快的城市：上海、广州、深圳、宁波；信息流通快、商业活动多的环境更容易放大你的优势。",
+    suggest:"学会筛选高质量人脉，减少消耗型社交；建立客户信息和复盘习惯，不要只靠口才，沉淀自己的方法论。"
+  },
+  stable:{
+    icon:"fa-balance-scale",
+    name:"事务稳重型",
+    desc:"细心靠谱，责任心强，重视秩序和安全感，做事稳妥谨慎，守时守规则，擅长梳理流程、核对细节；不喜欢突如其来的巨大变动，偏爱可控、可预期的生活与工作。",
+    good:"细心严谨，稳定性高，执行力强，值得托付，擅长文档、流程、台账类工作，出错率低，是团队的稳定基石。",
+    bad:"不容易主动求变，面对突发变化容易紧张；不太喜欢冒险尝试新赛道；容易被繁琐琐事淹没，缺少向上表达的意愿。",
+    job:"人事、行政、会计、档案管理、教务、质检、后勤、标准化运营、供应链内勤、法务助理",
+    notjob:"频繁变动、没有固定流程、不确定性极强、需要高频即兴决策的岗位。",
+    city:"生活配套成熟、节奏适中的城市：武汉、济南、青岛、长沙；压力温和、秩序稳定、生活幸福感均衡的环境更适配。",
+    suggest:"在稳定基础上主动学习新工具，提升效率；适度跳出舒适区，练习独立做决策，避免长期被动等待安排。"
+  },
+  helper:{
+    icon:"fa-heart",
+    name:"助人服务型",
+    desc:"共情力极强，温柔耐心，习惯优先照顾别人感受，从帮助他人、治愈他人的过程里获得价值感；重视温暖的人际关系，不忍心拒绝别人，容易体谅他人难处。",
+    good:"同理心强，善于倾听，情绪感知敏锐，耐心充足，擅长安抚情绪，服务意识强，容易收获他人信任。",
+    bad:"容易过度共情、承接别人负面情绪，不懂拒绝，发生情绪透支；容易优先照顾别人，忽略自己的需求。",
+    job:"教师、教育辅导、社工、医护辅助、心理咨询助理、养老服务、母婴、客服、陪伴类服务、疗愈相关",
+    notjob:"长期浸泡高强度负面情绪、没有情绪保护机制、需要强硬对抗他人的岗位。",
+    city:"人文氛围浓厚、节奏柔和的城市：成都、厦门、苏州、无锡；竞争过于残酷、节奏极快的环境很容易透支你的情绪能量。",
+    suggest:"建立清晰边界，学会温和拒绝；定期给自己情绪回血时间；区分自己能解决的问题和别人自己的课题，不要独自承担所有人的压力。"
+  },
+  explorer:{
+    icon:"fa-compass",
+    name:"探索自由型",
+    desc:"好奇心旺盛，讨厌束缚，适应力强，喜欢多元体验，向往自主安排时间；不喜欢层级复杂、规则繁多的环境，愿意试错，喜欢新鲜体验，讨厌被牢牢管控。",
+    good:"适应力强，敢于尝试新方向，思维开放，接受度高，擅长在不确定环境里找到机会，适合灵活、项目制工作。",
+    bad:"很难长期坚持枯燥长线任务；讨厌繁琐流程和打卡约束；容易兴趣很多，但很难深耕一个方向拿到结果。",
+    job:"自由职业、独立顾问、探店博主、跨境、调研、项目制岗位、摄影、旅行内容、策划类短期项目",
+    notjob:"严格打卡、层级森严、规矩繁琐、变动空间极小的传统岗位。",
+    city:"包容度高、生活方式多元、选择丰富的城市：昆明、厦门、重庆、珠海；偏爱宽松开放，反感强管控氛围。",
+    suggest:"把爱好和收益做结合，给自己设定最低约束；可以多尝试，但选定方向后给自己一个深耕周期，避免一直浅尝辄止。"
+  }
+}
+
+// 计分
+let score = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0,M:0,C:0,A:0,L:0}
+let current = 0
+
+function startTest(){
+  document.getElementById('page-start').classList.add('hidden')
+  document.getElementById('page-question').classList.remove('hidden')
+  renderQ()
+}
+
+function renderQ(){
+  const q = questions[current]
+  document.getElementById('current-q').innerText = current+1
+  document.getElementById('progress-bar').style.width = ((current+1)/24*100)+'%'
+  document.getElementById('q-title').innerText = q.q
+  let html = ''
+  q.o.forEach(opt=>{
+    html += `
+      <button onclick="pick('${opt.k}')" class="w-full text-left p-4 border border-slate-200 rounded-xl btn-hover hover:border-primary hover:bg-purple-50">
+        ${opt.t}
+      </button>
+    `
+  })
+  document.getElementById('option-box').innerHTML = html
+}
+
+function pick(k){
+  score[k]++
+  current++
+  if(current >= questions.length){
+    showResult()
+  }else{
+    renderQ()
+  }
+}
+
+function showResult(){
+  document.getElementById('page-question').classList.add('hidden')
+  document.getElementById('page-result').classList.remove('hidden')
+
+  // 判定逻辑
+  let type
+  if(score.N >= score.S && score.I >= score.E && score.F>score.T) type = 'creator'
+  else if(score.T>score.F && score.I>score.E && score.S >= score.P) type = 'tech'
+  else if(score.E>score.I && score.T >= score.F) type = 'business'
+  else if(score.J>score.P && score.S>score.N && score.T>=score.F) type = 'stable'
+  else if(score.F>score.T) type = 'helper'
+  else type = 'explorer'
+
+  const r = resultMap[type]
+  document.getElementById('res-icon').className = 'fa '+r.icon
+  document.getElementById('res-name').innerText = r.name
+  document.getElementById('res-desc').innerText = r.desc
+  document.getElementById('res-good').innerText = r.good
+  document.getElementById('res-bad').innerText = r.bad
+  document.getElementById('res-job').innerText = r.job
+  document.getElementById('res-notjob').innerText = r.notjob
+  document.getElementById('res-city').innerText = r.city
+  document.getElementById('res-suggest').innerText = r.suggest
+}
+
+function restart(){
+  score = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0,M:0,C:0,A:0,L:0}
+  current = 0
+  document.getElementById('page-result').classList.add('hidden')
+  document.getElementById('page-start').classList.remove('hidden')
+}
+</script>
+</body>
+</html>
+<!-- （注：内容由AI生成） -->
